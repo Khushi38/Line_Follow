@@ -1,0 +1,106 @@
+int enR=2;
+int enL=3;
+int rightMotor1 =8;
+int rightMotor2 =9;
+int leftMotor1 =5;
+int leftMotor2 =6;
+int average=0;
+int sum=0;
+int error=0;
+int lastError=0;
+long kp=0;
+long kd=0;
+
+ int digitalVal[7];
+    
+void setup{
+  Serial.begin(9600);
+  pinMode(rightMotor1,OUTPUT);
+  pinMode(rightMotor2,OUTPUT);
+  pinMode(leftMotor1,OUTPUT);
+  pinMode(lefttMotor2,OUTPUT);
+pinMode(enR,OUTPUT);//right
+pinMode(enL,OUTPUT);//left
+}
+//************************
+void sensorVal(){
+  for(int i=0;i<7;i++)
+{digitalVal[i]=analogRead(i);
+Serial.print(digitalVal[i]);
+}
+delay(1500);
+} 
+//*************************
+void threshold(){
+   for(int i=0;i<7;i++){
+    if(analogRead[i]>thresholdVal){
+    digitalVal[i]=0;
+    }
+    else
+    if(analogRead[i]<thresholdVal){
+    digitalVal[i]=1;
+    }
+  }
+}
+//*************************
+void paramater(){  
+   for(int i=0;i<7;i++){
+   average += digitalVal[i]*(i-3);
+} 
+Serial.print(average);
+delay(2000);
+ }
+//**************************
+void 90degreeTurn(){
+  if(digitalVal[4]==0 && digitalVal[5]==0 && digitalVal[6]==0){
+    while(digitalVal[4]==0 && digitalVal[5]==0 && digitalVal[6]==0){
+digitalWrite(leftMotor1,HIGH);
+digitalWrite(leftMotor2,LOW);
+digitalWrite(rightMotor1,LOW);
+digitalWrite(rightMotor2,HIGH);
+analogWrite(enA,70);
+analogWrite(enB,70) ;
+}
+}
+//*************************
+void pidCalc(){
+error = int(average * Kp + (error-lastError) * Kd);
+lastError=error;
+}
+//**************************
+void turnCondition(){
+  if(average==0){
+digitalWrite(enR, HIGH);
+digitalWrite(enL, HIGH);
+digitalWrite(leftMotor1,HIGH);
+digitalWrite(leftMotor2,LOW);
+digitalWrite(rightMotor1,HIGH);
+digitalWrite(rightMotor2,LOW);
+}
+else
+if (average< 0){
+  {digitalWrite(leftMotor1,HIGH);
+digitalWrite(leftMotor2,LOW);}
+digitalWrite(rightMotor1,HIGH);
+digitalWrite(rightMotor2,LOW);
+analogWrite(enR,150);
+analogWrite(enL,150-error);
+}
+else{
+  digitalWrite(leftMotor1,HIGH);
+digitalWrite(leftMotor2,LOW);
+digitalWrite(rightMotor1,HIGH);
+digitalWrite(rightMotor2,LOW);
+analogWrite(enR,150+error);
+analogWrite(enL,150);
+}
+}
+//******************************
+void loop() {
+sensorVal();
+threshold();
+parameter();
+90degreeTurn();
+pidCalc();
+turnCondition();
+  }
